@@ -523,11 +523,13 @@ st_dimensions(ph_high) <- dim
 
 # Reference
 ref <- ibis.iSDM:::stars_to_raster(ph_ref, which = 18)[[1]]
+ref <- shift(ref,dx=200) # Shift to 0 meridian
 ref <- terra::project(ref, background)
 
 # Get 2050
 # seq(2020,2100,10)
 new <- ibis.iSDM:::stars_to_raster(ph_high, which= 4)[[1]]
+new <- shift(new, dx=200) # Shift to 0 meridian
 new <- terra::project(new, background)
 
 # Relative change
@@ -563,6 +565,7 @@ st_dimensions(ph_low) <- dim
 # Get 2050
 # seq(2020,2100,10)
 new <- ibis.iSDM:::stars_to_raster(ph_low, which= 4)[[1]]
+new <- shift(new, dx=200) # Shift to 0 meridian
 new <- terra::project(new, background)
 # Relative change
 # Inverse to highlight impacts of accidification
