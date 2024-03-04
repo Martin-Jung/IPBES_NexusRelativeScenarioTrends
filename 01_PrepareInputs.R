@@ -244,6 +244,77 @@ write.csv2(df, paste0(path_processed, "water_demand_terr_low.csv"))
 
 #### Health - Infectious diseases ----
 
+# Load for Malaria
+# LTS Length of the transmission season for historical and projected period
+mal_h <- read_ncdf("raw_data/OSF_Health/Malaria outputs/LCMI/lcmi_ensmean_historical_lts_1970_1999.nc4") 
+mal_f <- read_ncdf("raw_data/OSF_Health/Malaria outputs/LCMI/lcmi_ensmean_rcp26_ssp1soc_lts_2040_2069.nc4")
+deng_h <- read_ncdf("raw_data/OSF_Health/Dengue outputs/DGM/dgm_ensmean_historical_lts_1970_1999.nc4")
+deng_f <- read_ncdf("raw_data/OSF_Health/Dengue outputs/DGM/dgm_ensmean_rcp26_ssp1soc_lts_2040_2069.nc4")
+
+# Get reference year
+ref1 <- ibis.iSDM:::stars_to_raster(mal_h, which = 1)[[1]]
+ref1 <- terra::project(ref1, background)
+ref2 <- ibis.iSDM:::stars_to_raster(deng_h, which = 1)[[1]]
+ref2 <- terra::project(ref2, background)
+
+# Get 2050
+new1 <- ibis.iSDM:::stars_to_raster(mal_f, which= 1)[[1]]
+new1 <- terra::project(new1, background)
+new2 <- ibis.iSDM:::stars_to_raster(deng_f, which= 1)[[1]]
+new2 <- terra::project(new2, background)
+
+# Relative change
+out1 <- (new1 - ref1)
+out2 <- (new2 - ref2)
+out <- mean(out1,out2)
+writeRaster(out, paste0(path_processed, "health_zoo_terr_high.tif"), overwrite = TRUE)
+
+df <- rbind(
+  as.data.frame(mean(ref1,ref2)) |> tidyr::drop_na() |> mutate(year = 2020),
+  as.data.frame(mean(new1,new2)) |> tidyr::drop_na() |> mutate(year = 2050)
+)
+df <- df |> group_by(year) |> summarise(sum = sum(lts),
+                                        min = min(lts), max = max(lts),
+                                        mean = mean(lts), median = median(lts))
+df <- df |> dplyr::mutate(nexus = "Health", entrypoint = "Vector-borne diseases",
+                          realm = "terrestrial",
+                          scenario = "high")
+write.csv2(df, paste0(path_processed, "health_zoo_terr_high.csv"))
+
+# Low ambition
+mal_f <- read_ncdf("raw_data/OSF_Health/Malaria outputs/LCMI/lcmi_ensmean_rcp85_ssp5soc_lts_2040_2069.nc4")
+deng_f <- read_ncdf("raw_data/OSF_Health/Dengue outputs/DGM/dgm_ensmean_rcp85_ssp5soc_lts_2040_2069.nc4")
+
+# Get reference year
+ref1 <- ibis.iSDM:::stars_to_raster(mal_h, which = 1)[[1]]
+ref1 <- terra::project(ref1, background)
+ref2 <- ibis.iSDM:::stars_to_raster(deng_h, which = 1)[[1]]
+ref2 <- terra::project(ref2, background)
+
+# Get 2050
+new1 <- ibis.iSDM:::stars_to_raster(mal_f, which= 1)[[1]]
+new1 <- terra::project(new1, background)
+new2 <- ibis.iSDM:::stars_to_raster(deng_f, which= 1)[[1]]
+new2 <- terra::project(new2, background)
+
+# Relative change
+out1 <- (new1 - ref1)
+out2 <- (new2 - ref2)
+out <- mean(out1,out2)
+writeRaster(out, paste0(path_processed, "health_zoo_terr_low.tif"), overwrite = TRUE)
+
+df <- rbind(
+  as.data.frame(mean(ref1,ref2)) |> tidyr::drop_na() |> mutate(year = 2020),
+  as.data.frame(mean(new1,new2)) |> tidyr::drop_na() |> mutate(year = 2050)
+)
+df <- df |> group_by(year) |> summarise(sum = sum(lts),
+                                        min = min(lts), max = max(lts),
+                                        mean = mean(lts), median = median(lts))
+df <- df |> dplyr::mutate(nexus = "Health", entrypoint = "Vector-borne diseases",
+                          realm = "terrestrial",
+                          scenario = "low")
+write.csv2(df, paste0(path_processed, "health_zoo_terr_low.csv"))
+
 #### Food - Supply ----
 n <- read_ncdf("raw_data/isimip/lpjml_gfdl-esm4_w5e5_ssp126_2015soc_default_biom-swh-firr_global_annual-gs_2015_2100.nc",proxy = F,
                make_time = FALSE) 
@@ -427,6 +498,88 @@ df <- df |> dplyr::mutate(nexus = "Climate", entrypoint = "Impact",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "climate_impact_terr_low.csv"))
 
+# --------- #
+# Marine
+# Using median projections of the pH from here https://www.ncei.noaa.gov/data/oceans/ncei/ocads/data/0259391/nc/median/
+# High ambition
+ph_ref <- read_ncdf("raw_data/Marine_Accidification/pHT_median_historical.nc")
+ph_high <- read_ncdf("raw_data/Marine_Accidification/pHT_median_ssp126.nc")
+#  West: -179.5 South: -89.5 East: 179.5 North: 89.5
+sf::st_crs(ph_ref) <- sf::st_crs(4326)
+sf::st_crs(ph_high) <- sf::st_crs(4326)
+# HACKY : change dimensions manually
+dim <- stars::st_dimensions(ph_ref)
+dim$lon$from <- -179.5
+dim$lon$to <- 179.5
+dim$lat$from <- -89.5
+dim$lat$to <- 89.5
+st_dimensions(ph_ref) <- dim
+dim <- stars::st_dimensions(ph_high)
+dim$lon$from <- -179.5
+dim$lon$to <- 179.5
+dim$lat$from <- -89.5
+dim$lat$to <- 89.5
+st_dimensions(ph_high) <- dim
+
+# Reference
+ref <- ibis.iSDM:::stars_to_raster(ph_ref, which = 18)[[1]]
+ref <- terra::project(ref, background)
+
+# Get 2050
+# seq(2020,2100,10)
+new <- ibis.iSDM:::stars_to_raster(ph_high, which= 4)[[1]]
+new <- terra::project(new, background)
+
+# Relative change
+# Inverse to highlight impacts of accidification
+out <- ((new - ref) / ref) * -1
+writeRaster(out, paste0(path_processed, "climate_impact_mar_high.tif"), overwrite= TRUE)
+
+# Get projection
+df <- as.data.frame(ph_high) |> tidyr::drop_na()
+df$year <- df$time+5
+df$pHT <- units::drop_units(df$pHT)
+df <- df |> group_by(year) |> summarise(sum = sum(pHT),
+                                        min = min(pHT), max = max(pHT),
+                                        mean = mean(pHT), median = median(pHT))
+gc()
+df <- df |> dplyr::mutate(nexus = "Climate", entrypoint = "Impact",
+                          realm = "marine",
+                          scenario = "high")
+write.csv2(df, paste0(path_processed, "climate_impact_mar_high.csv"))
+
+# --- #
+# Low ambition
+ph_low <- read_ncdf("raw_data/Marine_Accidification/pHT_median_ssp585.nc")
+sf::st_crs(ph_low) <- sf::st_crs(4326)
+# HACKY : change dimensions manually
+dim <- stars::st_dimensions(ph_low)
+dim$lon$from <- -179.5
+dim$lon$to <- 179.5
+dim$lat$from <- -89.5
+dim$lat$to <- 89.5
+st_dimensions(ph_low) <- dim
+
+# Get 2050
+# seq(2020,2100,10)
+new <- ibis.iSDM:::stars_to_raster(ph_low, which= 4)[[1]]
+new <- terra::project(new, background)
+# Relative change
+# Inverse to highlight impacts of accidification
+out <- ((new - ref) / ref) * -1
+writeRaster(out, paste0(path_processed, "climate_impact_mar_low.tif"), overwrite= TRUE)
+
+df <- as.data.frame(ph_low) |> tidyr::drop_na()
+df$year <- df$time+5
+df$pHT <- units::drop_units(df$pHT)
+df <- df |> group_by(year) |> summarise(sum = sum(pHT),
+                                        min = min(pHT), max = max(pHT),
+                                        mean = mean(pHT), median = median(pHT))
+gc()
+df <- df |> dplyr::mutate(nexus = "Climate", entrypoint = "Impact",
+                          realm = "marine",
+                          scenario = "low")
+write.csv2(df, paste0(path_processed, "climate_impact_mar_low.csv"))
 
 #### Climate - Mitigation ----
 # Bioenergy production
