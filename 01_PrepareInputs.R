@@ -242,8 +242,72 @@ df <- df |> dplyr::mutate(nexus = "Water", entrypoint = "Demand",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "water_demand_terr_low.csv"))
 
-#### Health - Infectious diseases ----
+#### Health - Heat mortality ----
+h <- read_ncdf("raw_data/isimip/trm-tsukuba_gfdl-esm2m_ewembi_rcp26_2005soc_an-tot-heat-all_global_annual_2006_2099.nc4")
+l <- read_ncdf("raw_data/isimip/trm-tsukuba_gfdl-esm2m_ewembi_rcp60_2005soc_an-tot-heat-all_global_annual_2006_2099.nc4")
 
+# Get reference year 2015
+ref <- ibis.iSDM:::stars_to_raster(h, which= 10)[[1]]
+ref <- terra::project(ref, background)
+ref <- terra::mask(ref, background)
+
+# Get 2050
+new <- ibis.iSDM:::stars_to_raster(h, which= 45)[[1]]
+new <- terra::project(new, background)
+new <- terra::mask(new, background)
+
+# Relative change
+out <- (new - ref)# / ref
+writeRaster(out, paste0(path_processed, "health_heatmort_terr_high.tif"), overwrite= TRUE)
+
+# Summarize 
+df <- as.data.frame(h) |> tidyr::drop_na()
+df$year <- lubridate::year(df$time)
+df <- df |> dplyr::filter(an.tot.heat.all>0) |> 
+  group_by(year) |> summarise(sum = sum(an.tot.heat.all),
+                                        min = min(an.tot.heat.all), max = max(an.tot.heat.all),
+                                        mean = mean(an.tot.heat.all), median = median(an.tot.heat.all)) |> 
+  # Use the sum in this case as we are dealing with a count
+  # Overwrite mean as this is used by default in future processing.
+  mutate(mean = sum)
+gc()
+df <- df |> dplyr::mutate(nexus = "Health", entrypoint = "Green and blue space",
+                          realm = "terrestrial",
+                          scenario = "high")
+write.csv2(df, paste0(path_processed, "health_heatmort_terr_high.csv"))
+
+# Low ambition
+# Get reference year 2015
+ref <- ibis.iSDM:::stars_to_raster(l, which= 10)[[1]]
+ref <- terra::project(ref, background)
+ref <- terra::mask(ref, background)
+
+# Get 2050
+new <- ibis.iSDM:::stars_to_raster(l, which= 45)[[1]]
+new <- terra::project(new, background)
+new <- terra::mask(new, background)
+
+# Relative change
+out <- (new - ref)# / ref
+writeRaster(out, paste0(path_processed, "health_heatmort_terr_low.tif"), overwrite= TRUE)
+
+# Summarize 
+df <- as.data.frame(l) |> tidyr::drop_na()
+df$year <- lubridate::year(df$time)
+df <- df |> dplyr::filter(an.tot.heat.all>0) |> 
+  group_by(year) |> summarise(sum = sum(an.tot.heat.all),
+                              min = min(an.tot.heat.all), max = max(an.tot.heat.all),
+                              mean = mean(an.tot.heat.all), median = median(an.tot.heat.all)) |> 
+  # Use the sum in this case as we are dealing with a count
+  # Overwrite mean as this is used by default in future processing.
+  mutate(mean = sum)
+gc()
+df <- df |> dplyr::mutate(nexus = "Health", entrypoint = "Green and blue space",
+                          realm = "terrestrial",
+                          scenario = "low")
+write.csv2(df, paste0(path_processed, "health_heatmort_terr_low.csv"))
+
+#### Health - Infectious diseases ----
 # Load for Malaria
 # LTS Length of the transmission season for historical and projected period
 mal_h <- read_ncdf("raw_data/OSF_Health/Malaria outputs/LCMI/lcmi_ensmean_historical_lts_1970_1999.nc4") 
