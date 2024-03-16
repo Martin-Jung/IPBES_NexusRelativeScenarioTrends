@@ -44,20 +44,32 @@ tif_files_high <- tif_files[grep("_high", tif_files)]
 
 assert_that(length(tif_files_high)==length(tif_files_low))
 
+# Separate marine and terrestrial files
+tif_files_low_mar <- tif_files_low[grep('mar', tif_files_low)]
+tif_files_low_terr <- tif_files_low[grep('ter', tif_files_low)]
+tif_files_high_mar <- tif_files_high[grep('mar', tif_files_high)]
+tif_files_high_terr <- tif_files_high[grep('ter', tif_files_high)]
+
 # Load in files
-ras_low <- terra::rast(tif_files_low)
-ras_high <- terra::rast(tif_files_high)
+ras_low_mar <- terra::rast(tif_files_low_mar)
+ras_low_terr <- terra::rast(tif_files_low_terr)
+ras_high_mar <- terra::rast(tif_files_high_mar)
+ras_high_terr <- terra::rast(tif_files_high_terr)
 
 # Normalize all layers
-ras_low <- ras_low |> predictor_transform(option = "norm")
-ras_high <- ras_high |> predictor_transform(option = "norm")
+ras_low_mar <- ras_low_mar |> predictor_transform(option = "norm")
+ras_high_mar <- ras_high_mar |> predictor_transform(option = "norm")
+ras_low_terr <- ras_low_terr |> predictor_transform(option = "norm")
+ras_high_terr <- ras_high_terr |> predictor_transform(option = "norm")
 
 # ------------------ #
 #### Combine all and build single relative indicator figure ####
 
 # Normalized score by addinig individual risk and exposure maps
-out_low <- sum(ras_low,na.rm = TRUE) |> predictor_transform(option = "norm")
-out_high <- sum(ras_high,na.rm = TRUE) |> predictor_transform(option = "norm")
+out_low <- terra::app(c(ras_low_mar,ras_low_terr), 'mean',na.rm=TRUE)
+out_high <- terra::app(c(ras_high_mar,ras_high_terr), 'mean',na.rm=TRUE)
+# out_low <- sum(ras_low,na.rm = TRUE) |> predictor_transform(option = "norm")
+# out_high <- sum(ras_high,na.rm = TRUE) |> predictor_transform(option = "norm")
 
 names(out_low) <- "Low Ambition"
 names(out_high) <- "High ambition"
@@ -71,8 +83,8 @@ g_combined <- ggplot() +
     facet_wrap(~lyr) +
   geom_sf(data = wm, fill = NA, colour = "black", lwd = 1) +
   theme_mapgrey(base_size = 20) +
-  # scale_fill_gradientn(colours = scico(10, palette = 'lipari',direction = -1),na.value = "white") +
-  scale_fill_gradientn(colours = scico(10, palette = 'managua',direction = -1),na.value = NA) +
+  scale_fill_gradientn(colours = scico(10, palette = 'lipari',direction = 1),na.value = NA) +
+  # scale_fill_gradientn(colours = scico(10, palette = 'glasgow',direction = -1),na.value = NA) +
     guides(fill = guide_colorbar(title = "Normalized\nscore")) +
     theme(legend.position = "bottom",legend.justification = "center",legend.key.width = unit(1.2,"in")) +
   labs(title = "Potential for future \nnexus interactions by 2050") +
@@ -89,7 +101,7 @@ ggsave(plot = g_combined, paste0(path_figures, "Fig_MapRanking_overall.svg"),
 # Combine with patchwork
 library(patchwork)
 
-gg <- g_combined / gt
+gg <- g_combined #/ gt
 ggsave(filename = paste0(path_figures, "Combined.png"),plot = gg,width = 14,height = 20)
 #cowplot::plot_grid(g_combined, gt,rel_widths = c(1,2),ncol = 1,labels = "AUTO")
 

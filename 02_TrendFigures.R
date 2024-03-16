@@ -61,7 +61,7 @@ gt <- ggplot(data = o, aes(x = year, y = mean, group = scenario, colour = scenar
   scale_color_npg() +
     guides(colour = guide_legend(title = "Policy ambition")) +
     theme(legend.position = "bottom") +
-  facet_wrap(nexus~entrypoint,scales = "free_y") +
+  facet_wrap(nexus~entrypoint,scales = "free_y",ncol = 4) +
   #Remove y-axis labels
   theme(axis.text.y.left = element_blank(), axis.ticks.y.left = element_blank()) +
   # Axis labels
