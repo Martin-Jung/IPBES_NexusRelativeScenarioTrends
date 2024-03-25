@@ -10,10 +10,6 @@ library(scico)
 # Load in parameters
 source('00_Function.R')
 
-# Colours
-cols <- c("None" = "grey30", "Biodiversity" = "#aad055", "Food" = "#e39038",
-          "Water" = "#03396c", "Health" = "#ee0c91", "Climate" = "#0cead9")
-
 # Custom theme with relevant background
 theme_mapgrey <- function (base_size = 18, base_family = "") {
   cowplot::theme_map(font_size = base_size, font_family = base_family) %+replace% 
@@ -80,13 +76,13 @@ wm <- regions_ipbes |> sf::st_transform(crs = sf::st_crs(background)) |>
 
 g_combined <- ggplot() +
   tidyterra::geom_spatraster(data = c(out_low,out_high)) +
-    facet_wrap(~lyr) +
+    facet_wrap(~lyr,ncol = 1) +
   geom_sf(data = wm, fill = NA, colour = "black", lwd = 1) +
   theme_mapgrey(base_size = 20) +
   scale_fill_gradientn(colours = scico(10, palette = 'lipari',direction = 1),na.value = NA) +
   # scale_fill_gradientn(colours = scico(10, palette = 'glasgow',direction = -1),na.value = NA) +
     guides(fill = guide_colorbar(title = "Normalized\nscore")) +
-    theme(legend.position = "bottom",legend.justification = "center",legend.key.width = unit(1.2,"in")) +
+    theme(legend.position = "bottom",legend.justification = "center",legend.key.width = unit(.8,"in")) + # Previous 1.2 in
   labs(title = "Potential for future \nnexus interactions by 2050") +
   theme(plot.title = element_text(hjust = 0.5))
 

@@ -63,11 +63,12 @@ g_gaps <- ggplot() +
   facet_wrap(~lyr) +
   # geom_sf(data = wm, fill = NA, colour = "black", lwd = 1) +
   theme_mapgrey(base_size = 20) +
-  scale_fill_gradientn(colours = scico(10, palette = 'lipari',direction = -1),na.value = "#ededed") +
+  # scale_fill_gradientn(colours = scico(10, palette = 'lipari',direction = -1),na.value = "#ededed") +
+  scale_fill_gradientn(colours = scico(10, palette = 'imola',direction = -1),na.value = "#ededed") +
   guides(fill = guide_colorbar(title = "Few                 Many")) +
   theme(legend.position = "right",legend.title.position = 'right',
         legend.ticks = element_blank(), legend.text = element_blank(),
-        legend.title = element_text(size = 12,vjust = 1, angle=90), legend.justification = "center") +
+        legend.title = element_text(size = 16,vjust = 1, angle=90), legend.justification = "center") +
   labs(title = "") +
   theme(plot.title = element_text(hjust = 0.5, size = 18))
 g_gaps

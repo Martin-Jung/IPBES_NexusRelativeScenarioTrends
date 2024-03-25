@@ -28,7 +28,7 @@ writeRaster(new, paste0(path_processed, "biodiv_natcons_terr_high.tif"), overwri
 # Save a summary, in this case simply the baseline and assumption of full protection
 # by 2050
 out <- data.frame(nexus = "Biodiversity", entrypoint = "Nature conservation",
-                  realm = "terrestrial",
+                  realm = "terrestrial", indicator = "Terrestrial protected areas",
                   scenario = c("low", "low", "high", "high"),
                   year = c(2020, 2050),
                   mean = c(0.19, .30, 0.19, .5)
@@ -53,6 +53,8 @@ new[new<0.8] <- 0
 new[new>0] <- 1
 writeRaster(new, paste0(path_processed, "biodiv_natcons_marine_high.tif"),overwrite= TRUE)
 
+# NOTE: Marine indicators not summarized since trends will be similar as for terrestrial.
+
 #### Biodiversity - Biodiversity targets ----
 # Here we use estimates from BES-SIM
 # Community intactness
@@ -66,7 +68,7 @@ terra::time(new) <- as.POSIXct(c("2015-01-01", "2050-01-01"))
 new <- project(new, background)
 
 out <- data.frame(nexus = "Biodiversity", entrypoint = "Biodiversity targets",
-                  realm = "terrestrial",
+                  realm = "terrestrial",indicator = "Biotic intactness",
                   scenario = c("high", "high"),
                   year = c(2020, 2050)
 ) |> dplyr::mutate(
@@ -92,7 +94,7 @@ terra::time(new) <- as.POSIXct(c("2015-01-01", "2050-01-01"))
 new <- project(new, background)
 
 out <- data.frame(nexus = "Biodiversity", entrypoint = "Biodiversity targets",
-                  realm = "terrestrial",
+                  realm = "terrestrial",indicator = "Biotic intactness",
                   scenario = c("low", "low"),
                   year = c(2020, 2050)
 ) |> dplyr::mutate(
@@ -140,7 +142,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(qtot),
                                         mean = mean(qtot), median = median(qtot))
 gc()
 df <- df |> dplyr::mutate(nexus = "Water", entrypoint = "Supply",
-                          realm = "terrestrial",
+                          realm = "terrestrial", indicator = "Total potential water supply",
                           scenario = "high")
 write.csv2(df, paste0(path_processed, "water_supply_terr_high.csv"))
 
@@ -172,7 +174,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(qtot),
                                         mean = mean(qtot), median = median(qtot))
 gc()
 df <- df |> dplyr::mutate(nexus = "Water", entrypoint = "Supply",
-                          realm = "terrestrial",
+                          realm = "terrestrial",indicator = "Total potential water supply",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "water_supply_terr_low.csv"))
 
@@ -206,7 +208,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(atotww),
                                         mean = mean(atotww), median = median(atotww))
 gc()
 df <- df |> dplyr::mutate(nexus = "Water", entrypoint = "Demand",
-                          realm = "terrestrial",
+                          realm = "terrestrial",indicator = "Total actual water withdrawal",
                           scenario = "high")
 write.csv2(df, paste0(path_processed, "water_demand_terr_high.csv"))
 
@@ -238,7 +240,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(atotww),
                                         mean = mean(atotww), median = median(atotww))
 gc()
 df <- df |> dplyr::mutate(nexus = "Water", entrypoint = "Demand",
-                          realm = "terrestrial",
+                          realm = "terrestrial",indicator = "Total actual water withdrawal",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "water_demand_terr_low.csv"))
 
@@ -272,7 +274,7 @@ df <- df |> dplyr::filter(an.tot.heat.all>0) |>
   mutate(mean = sum)
 gc()
 df <- df |> dplyr::mutate(nexus = "Health", entrypoint = "Green and blue space",
-                          realm = "terrestrial",
+                          realm = "terrestrial",indicator = "Heat mortality",
                           scenario = "high")
 write.csv2(df, paste0(path_processed, "health_heatmort_terr_high.csv"))
 
@@ -303,7 +305,7 @@ df <- df |> dplyr::filter(an.tot.heat.all>0) |>
   mutate(mean = sum)
 gc()
 df <- df |> dplyr::mutate(nexus = "Health", entrypoint = "Green and blue space",
-                          realm = "terrestrial",
+                          realm = "terrestrial",indicator = "Heat mortality",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "health_heatmort_terr_low.csv"))
 
@@ -341,7 +343,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(lts),
                                         min = min(lts), max = max(lts),
                                         mean = mean(lts), median = median(lts))
 df <- df |> dplyr::mutate(nexus = "Health", entrypoint = "Vector-borne diseases",
-                          realm = "terrestrial",
+                          realm = "terrestrial", indicator = "Length of \ninfectious transmission season",
                           scenario = "high")
 write.csv2(df, paste0(path_processed, "health_zoo_terr_high.csv"))
 
@@ -375,7 +377,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(lts),
                                         min = min(lts), max = max(lts),
                                         mean = mean(lts), median = median(lts))
 df <- df |> dplyr::mutate(nexus = "Health", entrypoint = "Vector-borne diseases",
-                          realm = "terrestrial",
+                          realm = "terrestrial", indicator = "Length of \ninfectious transmission season",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "health_zoo_terr_low.csv"))
 
@@ -406,7 +408,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(biom.swh.firr),
                                         mean = mean(biom.swh.firr), median = median(biom.swh.firr))
 gc()
 df <- df |> dplyr::mutate(nexus = "Food", entrypoint = "Supply",
-                          realm = "terrestrial",
+                          realm = "terrestrial", indicator = "Irrigated summer wheat yield",
                           scenario = "high")
 write.csv2(df, paste0(path_processed, "food_supply_terr_high.csv"))
 
@@ -438,7 +440,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(biom.swh.firr),
                                         mean = mean(biom.swh.firr), median = median(biom.swh.firr))
 gc()
 df <- df |> dplyr::mutate(nexus = "Food", entrypoint = "Supply",
-                          realm = "terrestrial",
+                          realm = "terrestrial", indicator = "Irrigated summer wheat yield",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "food_supply_terr_low.csv"))
 
@@ -473,7 +475,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(tc),
                                         mean = mean(tc), median = median(tc))
 gc()
 df <- df |> dplyr::mutate(nexus = "Food", entrypoint = "Supply",
-                          realm = "marine",
+                          realm = "marine",indicator = "Total fish catch",
                           scenario = "high")
 write.csv2(df, paste0(path_processed, "food_supply_mar_high.csv"))
 rm(df);gc()
@@ -509,7 +511,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(tc),
                                         mean = mean(tc), median = median(tc))
 gc()
 df <- df |> dplyr::mutate(nexus = "Food", entrypoint = "Supply",
-                          realm = "marine",
+                          realm = "marine",indicator = "Total fish catch",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "food_supply_mar_low.csv"))
 rm(df);gc()
@@ -536,7 +538,7 @@ df <- data.frame(year = c(2020, 2050),
                  max = c(0, terra::global(ras_climaterisk, "max", na.rm = TRUE)[,1])
                  )
 df <- df |> dplyr::mutate(nexus = "Climate", entrypoint = "Impact",
-                          realm = "terrestrial",
+                          realm = "terrestrial",indicator = "Multi-sectoral climate risk",
                           scenario = "high")
 write.csv2(df, paste0(path_processed, "climate_impact_terr_high.csv"))
 
@@ -558,7 +560,7 @@ df <- data.frame(year = c(2020, 2050),
                  max = c(0, terra::global(ras_climaterisk, "max", na.rm = TRUE)[,1])
 )
 df <- df |> dplyr::mutate(nexus = "Climate", entrypoint = "Impact",
-                          realm = "terrestrial",
+                          realm = "terrestrial",indicator = "Multi-sectoral climate risk",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "climate_impact_terr_low.csv"))
 
@@ -610,7 +612,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(pHT),
                                         mean = mean(pHT), median = median(pHT))
 gc()
 df <- df |> dplyr::mutate(nexus = "Climate", entrypoint = "Impact",
-                          realm = "marine",
+                          realm = "marine", indicator = "Ocean pH values",
                           scenario = "high")
 write.csv2(df, paste0(path_processed, "climate_impact_mar_high.csv"))
 
@@ -644,7 +646,7 @@ df <- df |> group_by(year) |> summarise(sum = sum(pHT),
                                         mean = mean(pHT), median = median(pHT))
 gc()
 df <- df |> dplyr::mutate(nexus = "Climate", entrypoint = "Impact",
-                          realm = "marine",
+                          realm = "marine",indicator = "Ocean pH values",
                           scenario = "low")
 write.csv2(df, paste0(path_processed, "climate_impact_mar_low.csv"))
 
@@ -662,7 +664,7 @@ terra::time(new) <- as.POSIXct(c("2015-01-01", "2050-01-01"))
 new <- project(new, background)
 
 out <- data.frame(nexus = "Climate", entrypoint = "Climate mitigation",
-                  realm = "terrestrial",
+                  realm = "terrestrial",indicator = "Bioenergy production",
                   scenario = c("high", "high"),
                   year = c(2020, 2050)
 ) |> dplyr::mutate(
@@ -689,7 +691,7 @@ terra::time(new) <- as.POSIXct(c("2015-01-01", "2050-01-01"))
 new <- project(new, background)
 
 out <- data.frame(nexus = "Climate", entrypoint = "Climate mitigation",
-                  realm = "terrestrial",
+                  realm = "terrestrial",indicator = "Bioenergy production",
                   scenario = c("low", "low"),
                   year = c(2020, 2050)
 ) |> dplyr::mutate(
@@ -722,7 +724,7 @@ new <- project(new, background)
 #new <- (new * -1) |> predictor_transform(method = "norm")
 
 out <- data.frame(nexus = "Climate", entrypoint = "Climate adaptation",
-                  realm = "marine",
+                  realm = "marine", indicator = "Coastal flooding risk",
                   scenario = c("high", "high"),
                   year = c(2020, 2050)
 ) |> dplyr::mutate(
@@ -750,7 +752,7 @@ new <- project(new, background)
 #new <- (new * -1) |> predictor_transform(method = "norm")
 
 out <- data.frame(nexus = "Climate", entrypoint = "Climate adaptation",
-                  realm = "marine",
+                  realm = "marine", indicator = "Coastal flooding risk",
                   scenario = c("low", "low"),
                   year = c(2020, 2050)
 ) |> dplyr::mutate(

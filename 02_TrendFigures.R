@@ -36,12 +36,14 @@ df <- csv_files %>%
   map_dfr(read_csv2)
 
 # Note starting data was recoded to be at 2020 throughout!
-o <- df |> filter(year %in% c(2020,2050)) |> 
-  dplyr::group_by(nexus, entrypoint, scenario, realm) |> 
+o <- df |> 
+  filter(year >= 2020 & year <= 2050) |>
+  # filter(year %in% c(2020,2050)) |>
+  dplyr::group_by(nexus, entrypoint, indicator, scenario, realm) |> 
   # Add relative change to the mean
   dplyr::mutate(mean = relChange(mean)) |> dplyr::ungroup() |> 
   # Group and average across realms
-  dplyr::group_by(nexus, entrypoint, scenario, year) |> 
+  dplyr::group_by(nexus, entrypoint, indicator, scenario, year) |> 
   summarise(mean = mean(mean)) |> dplyr::ungroup()
 
 # Relabel indicator names climate
@@ -51,22 +53,85 @@ o <- o |> mutate(entrypoint = case_when(entrypoint == "Climate adaptation" ~ "Cl
 
 # --------------------------------- #
 ### Build time series plot ####
+o$indicator[o$indicator=="Length of \r\ninfectious transmission season"] <- "Length of infectious \ntransmission season"
 
 gt <- ggplot(data = o, aes(x = year, y = mean, group = scenario, colour = scenario)) + 
   # Theming
   theme_lightgrey(base_size = 18) +
+  # Add filled background grid
+    # geom_rect(aes(fill = entrypoint), alpha = 0.05,show.legend = FALSE,
+              # ymin = -Inf, ymax = Inf, xmin = -Inf, xmax= Inf) +
   geom_hline(yintercept = 0, linetype = "dotted",linewidth = .75) +
   geom_line(linewidth = 1.5) +
   # Nature colour scale
   scale_color_npg() +
     guides(colour = guide_legend(title = "Policy ambition")) +
     theme(legend.position = "bottom") +
-  facet_wrap(nexus~entrypoint,scales = "free_y",ncol = 4) +
+  # facet_wrap(nexus~entrypoint,scales = "free_y",ncol = 4) +
+  facet_wrap(nexus~indicator,scales = "free",ncol = 5) +
+    theme(strip.text = element_text(size = 12)) +
   #Remove y-axis labels
-  theme(axis.text.y.left = element_blank(), axis.ticks.y.left = element_blank()) +
+  theme(axis.text.y.left = element_blank(), axis.ticks.y.left = element_blank(),
+        axis.text.x.bottom = element_text(size = 10)) +
   # Axis labels
   ylab(label = expression("Low values" %->% "High values")) + xlab(label = "")
 gt
 
 ggsave(filename = paste0(path_figures, "IndicatorTrends.png"), plot = gt,
+       width = 14,height = 12,dpi = 400)
+
+# --------------------------------- #
+### Add Full indicator breakdown ####
+# Figure idea:
+# Don't aggregate across Realms and indicators
+# Instead showing simply the change relative to baseline.
+
+# Get actual indicator names
+inds <- readxl::read_xlsx("C:/Users/tuete/United Nations/Teamkanal - Chapter 3/Explorative Figure/FigureData.xlsx") |> 
+  dplyr::filter(!is.na(Indicator), !is.na(Scenario)) |>
+  dplyr::select(Nexus:Realm, Scenario.Group, Indicator) |> distinct()
+names(inds) <- tolower(names(inds))
+# Recode scenarios 
+inds$scenario <- ifelse(inds$scenario.group == "Low ambition", "low", "high")
+inds <- inds |> dplyr::select(-scenario.group)
+
+# Format data for barplot
+o <- df |> filter(year %in% c(2020,2050)) |> 
+  dplyr::group_by(nexus, entrypoint, scenario, realm) |> 
+  # Add relative change to the mean
+  dplyr::mutate(mean = relChange(mean)) |> dplyr::ungroup() |> 
+  dplyr::select(nexus, entrypoint, scenario, realm, year, mean) |> 
+  # Convert to uppercase
+  dplyr::mutate(realm = stringr::str_to_title(realm)) |> distinct()
+# Add indicator name to it
+o <- o |> dplyr::left_join(inds)
+
+# Relabel indicator names climate
+o <- o |> mutate(entrypoint = case_when(entrypoint == "Climate adaptation" ~ "Climate adaptation (risk)",
+                                        entrypoint == "Impact" ~ "Climate impacts (risk)",
+                                        TRUE ~ entrypoint))
+
+
+gb <- ggplot(data = o |> dplyr::filter(year == 2050),
+             aes(x = entrypoint, y = mean, group = scenario, fill = scenario)) + 
+  # Theming
+  theme_lightgrey(base_size = 18) +
+  geom_hline(yintercept = 0, linetype = "dotted",linewidth = .75) +
+  geom_point() +
+  geom_line(linewidth = 1.5) +
+  # Colours set
+  scale_fill_manual(values = cols) +
+  facet_wrap(~realm)
+
+  guides(colour = guide_legend(title = "Policy ambition")) +
+  theme(legend.position = "bottom") +
+  facet_wrap(nexus~entrypoint,scales = "free_y",ncol = 4) +
+  #Remove y-axis labels
+  theme(axis.text.y.left = element_blank(), axis.ticks.y.left = element_blank()) +
+  # Axis labels
+  ylab(label = expression("Low values" %->% "High values")) + xlab(label = "")
+gb
+
+ggsave(filename = paste0(path_figures, "IndicatorTrends.png"), plot = gt,
        width = 10,height = 9,dpi = 400)
+
