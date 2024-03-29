@@ -9,12 +9,10 @@ library(scico)
 # Load in parameters
 source('00_Function.R')
 
-# Maximum number of indicators across nexus element section and realm
-max_scenarios <- (4 * 3) + 2 # 3 sections per element except for health
+df <- readxl::read_xlsx("C:/Users/tuete/United Nations/Teamkanal - Chapter 3/Explorative Figure/FigureData.xlsx")
 
-# Colours
-cols <- c("None" = "grey30", "Biodiversity" = "#aad055", "Food" = "#e39038",
-          "Water" = "#03396c", "Health" = "#ee0c91", "Climate" = "#0cead9")
+# Maximum number of indicators across nexus element section and realm
+max_scenarios <- dplyr::n_distinct(df$Entrypoint)*3 # 3 sections per element except for health
 
 # Custom theme with relevant background
 theme_mapgrey <- function (base_size = 18, base_family = "") {

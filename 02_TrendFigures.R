@@ -75,7 +75,6 @@ gt <- ggplot(data = o, aes(x = year, y = mean, group = scenario, colour = scenar
         axis.text.x.bottom = element_text(size = 10)) +
   # Axis labels
   ylab(label = expression("Low values" %->% "High values")) + xlab(label = "")
-gt
 
 ggsave(filename = paste0(path_figures, "IndicatorTrends.png"), plot = gt,
        width = 14,height = 12,dpi = 400)

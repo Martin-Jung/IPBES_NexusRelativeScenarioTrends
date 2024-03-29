@@ -43,8 +43,8 @@ regions_ipbes <- sf::st_read("raw_data/BendingTheCurve_supportingMaterial_final_
   sf::st_transform(crs = sf::st_crs(background))
 
 # Generic colours
-cols <- c("None" = "grey30", "Biodiversity" = "#aad055", "Food" = "#e39038",
-          "Water" = "#03396c", "Health" = "#ee0c91", "Climate" = "#0cead9")
+cols <- c("None" = "grey30", "Biodiversity" = "#C6D68A", "Food" = "#B65719",
+          "Water" = "#4A928F", "Health" = "#791E32", "Climate" = "#BAB0C9")
 
 # ---------- #
 #### Checks ####
