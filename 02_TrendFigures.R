@@ -51,9 +51,15 @@ o <- o |> mutate(entrypoint = case_when(entrypoint == "Climate adaptation" ~ "Cl
                                    entrypoint == "Impact" ~ "Climate impacts (risk)",
                                    TRUE ~ entrypoint))
 
+# Rename nexus climate to climate change
+o$nexus[o$nexus=="Climate"] <- "Climate change"
+
 # --------------------------------- #
 ### Build time series plot ####
+# Split label
 o$indicator[o$indicator=="Length of \r\ninfectious transmission season"] <- "Length of infectious \ntransmission season"
+o$indicator[o$indicator=="Total actual water withdrawal"] <- "Total actual \nwater withdrawal"
+o$indicator[o$indicator=="Total potential water supply"] <- "Total potential \nwater supply"
 
 gt <- ggplot(data = o, aes(x = year, y = mean, group = scenario, colour = scenario)) + 
   # Theming
@@ -69,15 +75,16 @@ gt <- ggplot(data = o, aes(x = year, y = mean, group = scenario, colour = scenar
     theme(legend.position = "bottom") +
   # facet_wrap(nexus~entrypoint,scales = "free_y",ncol = 4) +
   facet_wrap(nexus~indicator,scales = "free",ncol = 5) +
-    theme(strip.text = element_text(size = 12)) +
+    theme(strip.text = element_text(size = 18)) +
   #Remove y-axis labels
   theme(axis.text.y.left = element_blank(), axis.ticks.y.left = element_blank(),
-        axis.text.x.bottom = element_text(size = 10)) +
+        axis.text.x.bottom = element_text(size = 14)) +
+  # theme(strip.switch.pad.grid = unit(0.1,"cm")) +
   # Axis labels
   ylab(label = expression("Low values" %->% "High values")) + xlab(label = "")
 
 ggsave(filename = paste0(path_figures, "IndicatorTrends.png"), plot = gt,
-       width = 14,height = 12,dpi = 400)
+       width = 16,height = 14,dpi = 400)
 
 # --------------------------------- #
 ### Add Full indicator breakdown ####

@@ -4,7 +4,7 @@ library(patchwork)
 library(scico)
 
 # This script creates a spatial representation of the various extracted layers
-# in earlier scripts. The IPBES style guide is followed wher epossible
+# in earlier scripts. The IPBES style guide is followed where epossible
 # Source: https://ict.ipbes.net/ipbes-ict-guide/data-and-knowledge-management/technical-guidelines/cartographic-guidelines
 
 # Load in parameters
@@ -83,7 +83,7 @@ g_combined <- ggplot() +
   # scale_fill_gradientn(colours = scico(10, palette = 'glasgow',direction = -1),na.value = NA) +
     guides(fill = guide_colorbar(title = "Normalized\nscore")) +
     theme(legend.position = "bottom",legend.justification = "center",legend.key.width = unit(.8,"in")) + # Previous 1.2 in
-  labs(title = "Potential for future \nnexus interactions by 2050") +
+  labs(title = "Potential future co-occurring\nnexus interactions by 2050") +
   theme(plot.title = element_text(hjust = 0.5))
 
 g_combined
@@ -97,9 +97,11 @@ ggsave(plot = g_combined, paste0(path_figures, "Fig_MapRanking_overall.svg"),
 # Combine with patchwork
 library(patchwork)
 
-gg <- g_combined #/ gt
-ggsave(filename = paste0(path_figures, "Combined.png"),plot = gg,width = 14,height = 20)
+# gg <- g_combined #/ gt
+# ggsave(filename = paste0(path_figures, "Combined.png"),plot = gg,width = 14,height = 20)
 #cowplot::plot_grid(g_combined, gt,rel_widths = c(1,2),ncol = 1,labels = "AUTO")
+
+# NOTE: This is done now externally to allow better control of elements!
 
 # g_gaps <- ggplot() +
 #   cowplot::theme_map(font_size = 18) +
