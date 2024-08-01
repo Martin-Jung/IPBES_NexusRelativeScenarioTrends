@@ -7,7 +7,7 @@ output:
 
 The scripts in this folder prepare an exploratory figure for the IPBES NEXUS 
 assessment. Specifically they enable the processing and formatting of relevant
-scenarios (downloaded in 'raw_data') and to create (spatial-)temporal visualizations.
+scenarios (downloaded in 'raw_data', but not uploaded) and to create (spatial-)temporal visualizations.
 
 # Methodology
 
@@ -37,3 +37,14 @@ at the time this figure was created.
 exist per SSP-RCP combination (although see FigureData.xlsx)
 * For many nexus elements there might not exist yet relevant projected indicators, 
 reflecting a data gap.
+
+## Data sources
+See [FigureData](https://github.com/Martin-Jung/IPBES_NexusRelativeScenarioTrends/blob/main/FigureData.xlsx) file.
+
+## License
+
+CC-BY 4.0
+
+## Contact
+
+[Martin Jung](https://iiasa.ac.at/staff/martin-jung)
