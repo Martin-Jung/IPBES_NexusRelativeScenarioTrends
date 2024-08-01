@@ -1,9 +1,3 @@
----
-title: "Methodology"
-output:
-  html_document:
-    df_print: paged
----
 
 The scripts in this folder prepare an exploratory figure for the IPBES NEXUS 
 assessment. Specifically they enable the processing and formatting of relevant
