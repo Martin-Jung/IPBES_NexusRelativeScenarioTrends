@@ -70,8 +70,13 @@ g_gaps <- ggplot() +
   labs(title = "") +
   theme(plot.title = element_text(hjust = 0.5, size = 18))
 g_gaps
+# Save the figure outputs as png
 ggsave(plot = g_gaps, paste0(path_figures, "Fig_MapGaps_overall.png"),
-       width = 8,height = 6)
+       width = 8,height = 6, dpi = 400)
+ggsave(plot = g_gaps, paste0(path_figures, "Fig_MapGaps_overall.eps"),
+       width = 8,height = 6, dpi = 400)
+ggsave(plot = g_gaps, paste0(path_figures, "Fig_MapGaps_overall.svg"),
+       width = 8,height = 6, dpi = 400)
 
 # -------------- #
 #### Overview plot per nexus element ####

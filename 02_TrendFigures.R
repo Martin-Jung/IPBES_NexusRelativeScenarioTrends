@@ -83,8 +83,15 @@ gt <- ggplot(data = o, aes(x = year, y = mean, group = scenario, colour = scenar
   # Axis labels
   ylab(label = expression("Low values" %->% "High values")) + xlab(label = "")
 
+# Save as png
 ggsave(filename = paste0(path_figures, "IndicatorTrends.png"), plot = gt,
-       width = 16,height = 14,dpi = 400)
+       width = 18,height = 16,dpi = 400)
+# Save as eps and svg
+ggsave(filename = paste0(path_figures, "IndicatorTrends.eps"), plot = gt,
+       width = 18,height = 16,dpi = 400)
+ggsave(filename = paste0(path_figures, "IndicatorTrends.svg"), plot = gt,
+       width = 18,height = 16,dpi = 400)
+
 
 # --------------------------------- #
 ### Add Full indicator breakdown ####
@@ -93,51 +100,50 @@ ggsave(filename = paste0(path_figures, "IndicatorTrends.png"), plot = gt,
 # Instead showing simply the change relative to baseline.
 
 # Get actual indicator names
-inds <- readxl::read_xlsx("C:/Users/tuete/United Nations/Teamkanal - Chapter 3/Explorative Figure/FigureData.xlsx") |> 
-  dplyr::filter(!is.na(Indicator), !is.na(Scenario)) |>
-  dplyr::select(Nexus:Realm, Scenario.Group, Indicator) |> distinct()
-names(inds) <- tolower(names(inds))
-# Recode scenarios 
-inds$scenario <- ifelse(inds$scenario.group == "Low ambition", "low", "high")
-inds <- inds |> dplyr::select(-scenario.group)
-
-# Format data for barplot
-o <- df |> filter(year %in% c(2020,2050)) |> 
-  dplyr::group_by(nexus, entrypoint, scenario, realm) |> 
-  # Add relative change to the mean
-  dplyr::mutate(mean = relChange(mean)) |> dplyr::ungroup() |> 
-  dplyr::select(nexus, entrypoint, scenario, realm, year, mean) |> 
-  # Convert to uppercase
-  dplyr::mutate(realm = stringr::str_to_title(realm)) |> distinct()
-# Add indicator name to it
-o <- o |> dplyr::left_join(inds)
-
-# Relabel indicator names climate
-o <- o |> mutate(entrypoint = case_when(entrypoint == "Climate adaptation" ~ "Climate adaptation (risk)",
-                                        entrypoint == "Impact" ~ "Climate impacts (risk)",
-                                        TRUE ~ entrypoint))
-
-
-gb <- ggplot(data = o |> dplyr::filter(year == 2050),
-             aes(x = entrypoint, y = mean, group = scenario, fill = scenario)) + 
-  # Theming
-  theme_lightgrey(base_size = 18) +
-  geom_hline(yintercept = 0, linetype = "dotted",linewidth = .75) +
-  geom_point() +
-  geom_line(linewidth = 1.5) +
-  # Colours set
-  scale_fill_manual(values = cols) +
-  facet_wrap(~realm)
-
-  guides(colour = guide_legend(title = "Policy ambition")) +
-  theme(legend.position = "bottom") +
-  facet_wrap(nexus~entrypoint,scales = "free_y",ncol = 4) +
-  #Remove y-axis labels
-  theme(axis.text.y.left = element_blank(), axis.ticks.y.left = element_blank()) +
-  # Axis labels
-  ylab(label = expression("Low values" %->% "High values")) + xlab(label = "")
-gb
-
-ggsave(filename = paste0(path_figures, "IndicatorTrends.png"), plot = gt,
-       width = 10,height = 9,dpi = 400)
-
+# inds <- readxl::read_xlsx("C:/Users/tuete/United Nations/Teamkanal - Chapter 3/Explorative Figure/FigureData.xlsx") |> 
+#   dplyr::filter(!is.na(Indicator), !is.na(Scenario)) |>
+#   dplyr::select(Nexus:Realm, Scenario.Group, Indicator) |> distinct()
+# names(inds) <- tolower(names(inds))
+# # Recode scenarios 
+# inds$scenario <- ifelse(inds$scenario.group == "Low ambition", "low", "high")
+# inds <- inds |> dplyr::select(-scenario.group)
+# 
+# # Format data for barplot
+# o <- df |> filter(year %in% c(2020,2050)) |> 
+#   dplyr::group_by(nexus, entrypoint, scenario, realm) |> 
+#   # Add relative change to the mean
+#   dplyr::mutate(mean = relChange(mean)) |> dplyr::ungroup() |> 
+#   dplyr::select(nexus, entrypoint, scenario, realm, year, mean) |> 
+#   # Convert to uppercase
+#   dplyr::mutate(realm = stringr::str_to_title(realm)) |> distinct()
+# # Add indicator name to it
+# o <- o |> dplyr::left_join(inds)
+# 
+# # Relabel indicator names climate
+# o <- o |> mutate(entrypoint = case_when(entrypoint == "Climate adaptation" ~ "Climate adaptation (risk)",
+#                                         entrypoint == "Impact" ~ "Climate impacts (risk)",
+#                                         TRUE ~ entrypoint))
+# 
+# 
+# gb <- ggplot(data = o |> dplyr::filter(year == 2050),
+#              aes(x = entrypoint, y = mean, group = scenario, fill = scenario)) + 
+#   # Theming
+#   theme_lightgrey(base_size = 18) +
+#   geom_hline(yintercept = 0, linetype = "dotted",linewidth = .75) +
+#   geom_point() +
+#   geom_line(linewidth = 1.5) +
+#   # Colours set
+#   scale_fill_manual(values = cols) +
+#   facet_wrap(~realm) +
+#   guides(colour = guide_legend(title = "Policy ambition")) +
+#   theme(legend.position = "bottom") +
+#   facet_wrap(nexus~entrypoint,scales = "free_y",ncol = 4) +
+#   #Remove y-axis labels
+#   theme(axis.text.y.left = element_blank(), axis.ticks.y.left = element_blank()) +
+#   # Axis labels
+#   ylab(label = expression("Low values" %->% "High values")) + xlab(label = "")
+# gb
+# 
+# ggsave(filename = paste0(path_figures, "IndicatorTrends.png"), plot = gt,
+#        width = 10,height = 9,dpi = 400)
+# 

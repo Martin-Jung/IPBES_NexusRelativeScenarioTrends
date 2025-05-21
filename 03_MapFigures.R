@@ -89,9 +89,11 @@ g_combined <- ggplot() +
 g_combined
 # Make a figure
 ggsave(plot = g_combined, paste0(path_figures, "Fig_MapRanking_overall.png"),
-       width = 14,height = 10)
+       width = 14,height = 10, dpi = 400)
 ggsave(plot = g_combined, paste0(path_figures, "Fig_MapRanking_overall.svg"),
-       width = 14,height = 10)
+       width = 14,height = 10, dpi = 400)
+ggsave(plot = g_combined, paste0(path_figures, "Fig_MapRanking_overall.eps"),
+       width = 14,height = 10, dpi = 400)
 
 # --- #
 # Combine with patchwork
